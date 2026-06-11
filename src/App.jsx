@@ -15,6 +15,11 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
+const observerOptions = {
+  threshold: 0.05, // 5% visibility is enough to trigger reveal, crucial for tall elements on mobile
+  rootMargin: '0px 0px -60px 0px'
+};
+
 function App() {
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -53,10 +58,7 @@ function App() {
   }, []);
 
   // Trigger intersection observer scroll reveals
-  useIntersectionObserver('.reveal', {
-    threshold: 0.15,
-    rootMargin: '0px 0px -60px 0px'
-  });
+  useIntersectionObserver('.reveal', observerOptions);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
