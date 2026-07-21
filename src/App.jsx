@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Loader from './components/Loader';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import About from './components/About';
-import Skills from './components/Skills';
-import Projects from './components/Projects';
-import Certifications from './components/Certifications';
-import Education from './components/Education';
-import Resume from './components/Resume';
-import WhyHireMe from './components/WhyHireMe';
-import Contact from './components/Contact';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import ScrollToTopOnRoute from './components/ScrollToTopOnRoute';
+
+import Home from './pages/Home';
+import AboutPage from './pages/AboutPage';
+import SkillsPage from './pages/SkillsPage';
+import ProjectsPage from './pages/ProjectsPage';
+import CertificationsPage from './pages/CertificationsPage';
+import EducationPage from './pages/EducationPage';
+import ResumePage from './pages/ResumePage';
+import WhyHireMePage from './pages/WhyHireMePage';
+import ContactPage from './pages/ContactPage';
+import NotFoundPage from './pages/NotFoundPage';
+
 import './App.css';
 
 function App() {
@@ -37,7 +42,8 @@ function App() {
   }, []);
 
   return (
-    <>
+    <Router>
+      <ScrollToTopOnRoute />
       <Loader isLoading={isLoading} />
 
       {/* Scroll Progress */}
@@ -51,20 +57,23 @@ function App() {
       <Navbar />
 
       <main className="min-h-screen">
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Certifications />
-        <Education />
-        <Resume />
-        <WhyHireMe />
-        <Contact />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/skills" element={<SkillsPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/certifications" element={<CertificationsPage />} />
+          <Route path="/education" element={<EducationPage />} />
+          <Route path="/resume" element={<ResumePage />} />
+          <Route path="/why-hire-me" element={<WhyHireMePage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </main>
 
       <Footer />
       <ScrollToTop />
-    </>
+    </Router>
   );
 }
 
