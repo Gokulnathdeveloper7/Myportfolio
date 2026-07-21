@@ -169,8 +169,8 @@ export default function Projects() {
           </div>
         ) : (
           <div className="projects-list-grid">
-            {projects.map((project, index) => (
-              <div key={project.id} className={`project-detail-card reveal reveal-delay-${(index % 4) * 100}`}>
+            {projects.map((project) => (
+              <div key={project.id} className="project-detail-card">
               <div className="project-header-row">
                 <div className="project-meta">
                   <span className="project-number">0{project.id}</span>
