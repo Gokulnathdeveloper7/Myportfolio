@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import Loader from './components/Loader';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -42,38 +43,40 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <ScrollToTopOnRoute />
-      <Loader isLoading={isLoading} />
+    <ThemeProvider>
+      <Router>
+        <ScrollToTopOnRoute />
+        <Loader isLoading={isLoading} />
 
-      {/* Scroll Progress */}
-      <div className="fixed top-0 left-0 h-1 z-[1001] w-full bg-transparent">
-        <div
-          className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-100 ease-out"
-          style={{ width: `${scrollProgress}%` }}
-        />
-      </div>
+        {/* Scroll Progress */}
+        <div className="fixed top-0 left-0 h-1 z-[1001] w-full bg-transparent">
+          <div
+            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-100 ease-out"
+            style={{ width: `${scrollProgress}%` }}
+          />
+        </div>
 
-      <Navbar />
+        <Navbar />
 
-      <main className="min-h-screen">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/skills" element={<SkillsPage />} />
-          <Route path="/projects" element={<ProjectsPage />} />
-          <Route path="/certifications" element={<CertificationsPage />} />
-          <Route path="/education" element={<EducationPage />} />
-          <Route path="/resume" element={<ResumePage />} />
-          <Route path="/why-hire-me" element={<WhyHireMePage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </main>
+        <main className="min-h-screen bg-background text-foreground transition-colors duration-300">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/skills" element={<SkillsPage />} />
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/certifications" element={<CertificationsPage />} />
+            <Route path="/education" element={<EducationPage />} />
+            <Route path="/resume" element={<ResumePage />} />
+            <Route path="/why-hire-me" element={<WhyHireMePage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </main>
 
-      <Footer />
-      <ScrollToTop />
-    </Router>
+        <Footer />
+        <ScrollToTop />
+      </Router>
+    </ThemeProvider>
   );
 }
 
