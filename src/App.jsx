@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import useIntersectionObserver from './hooks/useIntersectionObserver';
+import { AuroraBackground } from './components/AuroraBackground';
 import Loader from './components/Loader';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -69,13 +70,13 @@ function App() {
       <Loader isLoading={isLoading} />
 
       {/* Scroll Progress Indicator */}
-      <div className="scroll-progress-container">
-        <div className="scroll-progress-bar" style={{ width: `${scrollProgress}%` }}></div>
+      <div className="scroll-progress-container fixed top-0 left-0 h-1 z-[1001] bg-transparent w-full">
+        <div className="scroll-progress-bar h-full bg-blue-600 transition-all duration-100 ease-out" style={{ width: `${scrollProgress}%` }}></div>
       </div>
 
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       
-      <main style={{ marginTop: 'var(--navbar-height)' }}>
+      <AuroraBackground className="min-h-screen pt-20">
         <Hero />
         <About />
         <Skills />
@@ -85,7 +86,7 @@ function App() {
         <Resume />
         <WhyHireMe />
         <Contact />
-      </main>
+      </AuroraBackground>
 
       <Footer />
       <ScrollToTop />
