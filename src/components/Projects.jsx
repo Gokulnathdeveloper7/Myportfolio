@@ -1,53 +1,47 @@
-import React from 'react';
-import { FaGithub, FaExternalLinkAlt, FaInfoCircle } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaGithub, FaExternalLinkAlt, FaInfoCircle, FaSpinner } from 'react-icons/fa';
 
 export default function Projects() {
-  const projects = [
-    {
-      id: 1,
-      title: 'Netflix Analytics Dashboard',
-      subtitle: 'Business Intelligence & Content Insights',
-      tech: ['Power BI', 'DAX', 'Power Query', 'Excel'],
-      desc: 'An interactive business intelligence dashboard designed to track Netflix content trends, genre distributions, and ratings across global regions.',
-      impact: 'Identified a 40% year-over-year growth in documentary content, enabling licensing recommendations that align with global viewing trends.',
-      github: 'https://github.com/Gokulnathdeveloper7/Netflix-data',
-      demo: 'https://github.com/Gokulnathdeveloper7',
-      visualType: 'netflix',
-    },
-    {
-      id: 2,
-      title: 'IPL Data Analysis',
-      subtitle: 'Relational Database Queries & Performance Metrics',
-      tech: ['SQL', 'MySQL', 'Database Design', 'Data Cleaning'],
-      desc: 'Designed and queried a relational database containing IPL match records to evaluate player stats, run rate trends, and overall team performance.',
-      impact: 'Optimized complex JOIN queries to calculate strike rates and batting averages, reducing the dataset analysis time by 60% for team management reports.',
-      github: 'https://github.com/Gokulnathdeveloper7/Ipl-dataset',
-      demo: 'https://github.com/Gokulnathdeveloper7/Ipl-dataset',
-      visualType: 'ipl',
-    },
-    {
-      id: 3,
-      title: 'Sales Performance Dashboard',
-      subtitle: 'Corporate Revenue & Profitability Analysis',
-      tech: ['Power BI', 'Excel', 'KPI Modeling', 'Data Modeling'],
-      desc: 'A comprehensive sales analytics dashboard evaluating monthly revenues, profit margins, product performances, and regional sales managers KPIs.',
-      impact: 'Highlighted a 12% margin drop in the western territory, leading to a product re-pricing strategy that recovered $15K in potential losses.',
-      github: 'https://github.com/Gokulnathdeveloper7/Sales-dataset',
-      demo: 'https://github.com/Gokulnathdeveloper7/Sales-dataset',
-      visualType: 'sales',
-    },
-    {
-      id: 4,
-      title: 'Customer Insights Analysis',
-      subtitle: 'Exploratory Data Analysis & Customer Segmentation',
-      tech: ['Python', 'Pandas', 'NumPy', 'Matplotlib', 'EDA'],
-      desc: 'Exploratory Data Analysis (EDA) on retail customer transaction logs to segment buyers based on demographics, purchase frequency, and basket size.',
-      impact: 'Discovered high-value customer segments responsible for 60% of revenues, facilitating targeted campaigns that increased retention by 8%.',
-      github: 'https://github.com/Gokulnathdeveloper7/Ipl-dataset',
-      demo: 'https://github.com/Gokulnathdeveloper7/Ipl-dataset',
-      visualType: 'customer',
-    },
-  ];
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch('https://api.github.com/users/Gokulnathdeveloper7/repos?sort=updated&per_page=6')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch projects');
+        return res.json();
+      })
+      .then((data) => {
+        const fetchedProjects = data.filter(repo => !repo.fork).map((repo) => ({
+          id: repo.id,
+          title: repo.name.replace(/-/g, ' ').replace(/_/g, ' '),
+          subtitle: repo.language ? `Built with ${repo.language}` : 'GitHub Repository',
+          tech: [repo.language, ...(repo.topics || [])].filter(Boolean),
+          desc: repo.description || 'No description provided for this repository.',
+          impact: `Stars: ${repo.stargazers_count} | Forks: ${repo.forks_count} | Watchers: ${repo.watchers_count}`,
+          github: repo.html_url,
+          demo: repo.homepage || repo.html_url,
+          visualType: getVisualType(repo.name),
+        }));
+        setProjects(fetchedProjects);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error fetching GitHub repos:', err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  const getVisualType = (repoName) => {
+    const name = repoName.toLowerCase();
+    if (name.includes('netflix')) return 'netflix';
+    if (name.includes('ipl')) return 'ipl';
+    if (name.includes('sales')) return 'sales';
+    if (name.includes('customer')) return 'customer';
+    return 'generic';
+  };
 
   const renderVisual = (type) => {
     switch (type) {
@@ -145,6 +139,12 @@ export default function Projects() {
             <div className="mock-insights-badge">Segment A: Loyal/High-Spenders</div>
           </div>
         );
+      case 'generic':
+        return (
+          <div className="project-visual-mock generic-mock" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '200px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
+            <FaGithub style={{ fontSize: '4rem', color: 'var(--text-muted)' }} />
+          </div>
+        );
       default:
         return null;
     }
@@ -158,9 +158,19 @@ export default function Projects() {
           <p className="section-subtitle">Real-world data applications and analytics solutions designed for decision makers</p>
         </div>
 
-        <div className="projects-list-grid">
-          {projects.map((project) => (
-            <div key={project.id} className="project-detail-card reveal reveal-delay-200">
+        {loading ? (
+          <div className="loading-projects" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+            <FaSpinner style={{ fontSize: '2rem', marginBottom: '1rem' }} />
+            <p>Fetching projects from GitHub...</p>
+          </div>
+        ) : error ? (
+          <div className="error-projects" style={{ textAlign: 'center', padding: '3rem', color: 'var(--accent-secondary)' }}>
+            <p>Failed to load projects: {error}</p>
+          </div>
+        ) : (
+          <div className="projects-list-grid">
+            {projects.map((project, index) => (
+              <div key={project.id} className={`project-detail-card reveal reveal-delay-${(index % 4) * 100}`}>
               <div className="project-header-row">
                 <div className="project-meta">
                   <span className="project-number">0{project.id}</span>
@@ -203,8 +213,9 @@ export default function Projects() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
