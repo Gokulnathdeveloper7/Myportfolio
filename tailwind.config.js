@@ -41,26 +41,12 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
       },
-      keyframes: {
-        aurora: {
-          from: { backgroundPosition: "50% 50%, 50% 50%" },
-          to: { backgroundPosition: "350% 50%, 350% 50%" },
-        },
-        glitch: {
-          "0%, 100%": { transform: "translate(0)" },
-          "33%": { transform: "translate(-2px, 1px)" },
-          "66%": { transform: "translate(2px, -1px)" },
-        },
-      },
-      animation: {
-        aurora: "aurora 60s linear infinite",
-        "aurora-1": "aurora 30s linear infinite",
-        "aurora-2": "aurora 45s linear infinite alternate",
-        "aurora-3": "aurora 40s linear infinite",
-        glitch: "glitch 2s infinite",
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
     },
   },
   plugins: [],
 }
-

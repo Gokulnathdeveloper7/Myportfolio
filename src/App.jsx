@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import useIntersectionObserver from './hooks/useIntersectionObserver';
-import { AuroraBackground } from './components/AuroraBackground';
 import Loader from './components/Loader';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -16,28 +14,10 @@ import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
-const observerOptions = {
-  threshold: 0.05, // 5% visibility is enough to trigger reveal, crucial for tall elements on mobile
-  rootMargin: '0px 0px -60px 0px'
-};
-
 function App() {
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) return savedTheme;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
-
   const [isLoading, setIsLoading] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
 
-  // Initialize theme
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  // Handle fake data preloading
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -45,38 +25,32 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Track scroll percentage
   useEffect(() => {
     const handleScroll = () => {
       const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       if (totalHeight > 0) {
-        const scrolled = (window.scrollY / totalHeight) * 100;
-        setScrollProgress(scrolled);
+        setScrollProgress((window.scrollY / totalHeight) * 100);
       }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Trigger intersection observer scroll reveals
-  useIntersectionObserver('.reveal', observerOptions);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
-
   return (
     <>
       <Loader isLoading={isLoading} />
 
-      {/* Scroll Progress Indicator */}
-      <div className="scroll-progress-container fixed top-0 left-0 h-1 z-[1001] bg-transparent w-full">
-        <div className="scroll-progress-bar h-full bg-blue-600 transition-all duration-100 ease-out" style={{ width: `${scrollProgress}%` }}></div>
+      {/* Scroll Progress */}
+      <div className="fixed top-0 left-0 h-1 z-[1001] w-full bg-transparent">
+        <div
+          className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-100 ease-out"
+          style={{ width: `${scrollProgress}%` }}
+        />
       </div>
 
-      <Navbar theme={theme} toggleTheme={toggleTheme} />
-      
-      <AuroraBackground className="min-h-screen pt-20">
+      <Navbar />
+
+      <main className="min-h-screen">
         <Hero />
         <About />
         <Skills />
@@ -86,7 +60,7 @@ function App() {
         <Resume />
         <WhyHireMe />
         <Contact />
-      </AuroraBackground>
+      </main>
 
       <Footer />
       <ScrollToTop />
