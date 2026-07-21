@@ -25,7 +25,7 @@ export default function Contact() {
     setStatus({ type: null, message: '', details: null });
 
     try {
-      // 1. If EmailJS credentials are provided, use EmailJS SDK
+      // 1. If EmailJS credentials are configured in .env or Vercel, use EmailJS SDK
       if (EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && EMAILJS_PUBLIC_KEY) {
         await emailjs.send(
           EMAILJS_SERVICE_ID,
@@ -44,7 +44,7 @@ export default function Contact() {
         return;
       }
 
-      // 2. Direct API submission via FormSubmit AJAX service to RECIPIENT_EMAIL
+      // 2. Direct API submission via FormSubmit AJAX service
       const response = await fetch(`https://formsubmit.co/ajax/${RECIPIENT_EMAIL}`, {
         method: 'POST',
         headers: {
@@ -66,25 +66,26 @@ export default function Contact() {
       if (data.success === 'true' || data.success === true) {
         setStatus({
           type: 'success',
-          message: 'Thank you! Your message has been sent directly to my inbox. I will reply shortly.'
+          message: 'Thank you! Your message has been sent directly to my inbox.'
         });
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else if (data.message && data.message.includes('Activation')) {
-        // First-time activation notice for recipient email address
+        // Activation notice
         setStatus({
           type: 'info',
-          message: `Activation email sent to ${RECIPIENT_EMAIL}! Please check your Gmail inbox and click 'Activate Form' to enable automatic email delivery for future submissions.`
+          message: `FormSubmit sent an activation email to ${RECIPIENT_EMAIL}. Open the email in Gmail, copy the 'Activate Form' link into your browser tab to activate!`
         });
-        setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
         throw new Error(data.message || 'Form submission failed');
       }
     } catch (err) {
       console.error("Error submitting contact form:", err);
+      // Fallback: Open mail app directly with prefilled details
+      const mailtoUrl = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent(formData.subject || 'Portfolio Inquiry')}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`)}`;
+      window.location.href = mailtoUrl;
       setStatus({
-        type: 'error',
-        message: 'Could not send message automatically.',
-        details: err.message
+        type: 'info',
+        message: 'Opened your default email application with your pre-filled message.'
       });
     } finally {
       setIsSubmitting(false);
@@ -103,7 +104,7 @@ export default function Contact() {
         <div className="lg:col-span-2 flex flex-col gap-8">
           <div>
             <h3 className="text-xl font-bold text-slate-800 mb-2">Contact Information</h3>
-            <p className="text-slate-400 text-sm">Fill out the form below to send an instant message.</p>
+            <p className="text-slate-400 text-sm">Fill out the form below or reach out directly.</p>
           </div>
 
           <div className="flex flex-col gap-4">
@@ -171,20 +172,29 @@ export default function Contact() {
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-shadow resize-y"></textarea>
             </div>
 
-            <button type="submit" disabled={isSubmitting}
-              className={`w-full py-3.5 rounded-xl font-bold text-white text-sm flex items-center justify-center gap-2 transition-all shadow-md ${isSubmitting ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 shadow-blue-200 hover:-translate-y-0.5'}`}>
-              {isSubmitting ? (
-                <>
-                  <FaSpinner className="animate-spin text-lg" />
-                  <span>Sending Message...</span>
-                </>
-              ) : (
-                <>
-                  <FaPaperPlane />
-                  <span>Send Message</span>
-                </>
-              )}
-            </button>
+            <div className="flex flex-col gap-3">
+              <button type="submit" disabled={isSubmitting}
+                className={`w-full py-3.5 rounded-xl font-bold text-white text-sm flex items-center justify-center gap-2 transition-all shadow-md ${isSubmitting ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 shadow-blue-200 hover:-translate-y-0.5'}`}>
+                {isSubmitting ? (
+                  <>
+                    <FaSpinner className="animate-spin text-lg" />
+                    <span>Sending Message...</span>
+                  </>
+                ) : (
+                  <>
+                    <FaPaperPlane />
+                    <span>Send Message</span>
+                  </>
+                )}
+              </button>
+
+              <a
+                href={`mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent(formData.subject || 'Portfolio Contact')}&body=${encodeURIComponent(formData.message ? `Name: ${formData.name}\nEmail: ${formData.email}\n\n${formData.message}` : '')}`}
+                className="w-full py-2.5 rounded-xl font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 text-xs flex items-center justify-center gap-2 transition-colors border border-slate-200 text-center"
+              >
+                <FaEnvelope /> Open Email Draft directly to {RECIPIENT_EMAIL}
+              </a>
+            </div>
 
             {status.type === 'success' && (
               <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-sm font-semibold flex items-center gap-3 animate-fade-in">
@@ -203,12 +213,7 @@ export default function Contact() {
             {status.type === 'error' && (
               <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm font-semibold flex items-center gap-3 animate-fade-in">
                 <FaExclamationTriangle className="text-rose-500 text-lg flex-shrink-0" />
-                <div className="flex flex-col gap-1">
-                  <span>{status.message}</span>
-                  <a href={`mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent(formData.subject || 'Inquiry')}&body=${encodeURIComponent(formData.message || '')}`} className="underline hover:text-rose-900 font-bold text-xs mt-1">
-                    Or click here to open mail app manually
-                  </a>
-                </div>
+                <span>{status.message}</span>
               </div>
             )}
           </form>
